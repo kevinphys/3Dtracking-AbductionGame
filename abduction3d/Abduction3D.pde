@@ -8,7 +8,7 @@ UFO ufo;
 Gaia gaia;
 
 Serial serial;
-String serialPort = "/dev/tty.usbmodem1411";   
+String serialPort = "/dev/tty.usbmodem1431";   
 // << Set this to be the serial port of your Arduino - ie if you have 3 ports : COM1, COM2, COM3 
 // and your Arduino is on COM2 you should set this to '1' - since the array is 0 based
               

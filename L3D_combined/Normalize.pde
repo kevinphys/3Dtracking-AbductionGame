@@ -24,7 +24,7 @@ class Normalize {
 
   float linear(float x) {
     float normalized = normalize(x);
-    if(normalized == 0)
+    if(normalized == 0)   //  what for ?
       return 1;
     float linear = sqrt(1 / normalized);
     linear = map(linear, minDistance, maxDistance, 0, 1);

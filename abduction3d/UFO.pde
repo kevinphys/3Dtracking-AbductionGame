@@ -11,7 +11,7 @@ class UFO {
   PShape ufoShape, top, body, bottom;
   
   UFO(float _radius) {
-    hp = 100;
+    hp = 5;
     score = 0;
     radius = _radius;
     halfH = 0.2 * radius;

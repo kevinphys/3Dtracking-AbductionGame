@@ -7,7 +7,7 @@ class MomentumAverage {
     reset();
   }
 
-  void note(float x) {
+  void note(float x) {                // Change another name
     if(x == Float.POSITIVE_INFINITY)
       return;
     else
