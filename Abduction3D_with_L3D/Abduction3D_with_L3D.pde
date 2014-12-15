@@ -1,15 +1,19 @@
+import peasy.test.*;
+import peasy.org.apache.commons.math.*;
+import peasy.*;
+import peasy.org.apache.commons.math.geometry.*;
+
 import processing.serial.*;
 import processing.opengl.*;
 
 // Abduction3D part
 import damkjer.ocd.*;
-UFO ufo;
-Gaia gaia;
+
+Game game;
 Serial serial;
-String serialPort = "/dev/tty.usbmodem1411";   
+String serialPort = "/dev/tty.usbmodem1431";   
 /** Set this to be the serial port of your Arduino
-    - In Windows, if you have 3 ports : COM1, COM2, COM3 , and your Arduino is on COM2 you should
-      set this to '1' - since the array is 0 based.
+    - In Windows, if you have 3 ports : COM1, COM2, COM3 , and set "COMx".
     - In Mac OSX or Linux, you could check this reference http://arduino.cc/en/guide/macOSX.
       It would be more like "/dev/tty.usbmodem____".
 **/
@@ -23,35 +27,46 @@ MomentumAverage axyz[] = new MomentumAverage[sen];
 float[] nxyz = new float[sen];
 int[] ixyz = new int[sen];
 
-float w;  // board size
+
 boolean[] flip = {
-  false, true, false};
+  false, false, false};
+
 
 
 // L3D cube frame part
 color [][][] cube;
-int side=8;
-PVector center=new PVector(side/2-.5, side/2 - 0.5, side/2- 0.5);
+int side = 8;
+PVector center = new PVector(side/2-.5, side/2 - 0.5, side/2- 0.5);
 PeasyCam cam;
-int scale=240;
-int state=0;
-int zed=0;
-int inc=1;
-Point spot=new Point(0,0,0);
+int scale = 240;
+int state = 0;
+int zed = 0;
+int inc = 1;
+Point spot = new Point(0,0,0);
 PImage logo;
 
 
 void setup()
 {
-  logo=loadImage("logo.png");
-  cube=new color[side][side][side];
+  logo = loadImage("logo.png");
+  cube = new color[side][side][side];
+  game = new Game(cube, side, getXYZ());
   print(center);
   size(displayWidth, displayHeight, P3D);
+  
+  println(Serial.list());
+  serial = new Serial(this, serialPort, 115200);
+  
+  for(int i = 0; i < sen; i++) {
+    n[i] = new Normalize();
+    axyz[i] = new MomentumAverage(.13);
+  }
+  
   cam = new PeasyCam(this, 4000);
   cam.setMinimumDistance(500);
   cam.setMaximumDistance(10000);
   initMulticast();
-  frameRate(100);
+  frameRate(1000);
 }
   
 
@@ -62,14 +77,9 @@ void draw()
   stroke(255, 10);
   translate(-side*scale/2, -side*scale/2, -side*scale/2);
   
-
-  updateSerial(); // Update hand-position data from serial port
-
-  if(mousePressed && mouseButton == LEFT) // Calibration message
-    msg("defining boundaries");
+  updateSerial(); // Update hand position data from serial port
     
-  updateCube(); // Update each 8x8x8 LED on or off
-
+  updateCube(); // Update each 8x8x8 LED on or off throughout UDP
   
   for (int x=0; x<side; x++)  
     for (int y=0; y<side; y++)  
@@ -87,10 +97,7 @@ void draw()
       
   cam.beginHUD();
   image(logo,0,0);
-  String []info={"L3D Cube streaming test",
-                "This program streams to any cube on the local network that's running the Listening program",
-                "Move the blue voxel around using the arrow keys for the x and y axes",
-                "The 'q' and 'a' keys move it along the z axis",
+  String []info={"L3D Cube combined with 3D tracking test",
                 "Voxel position: ("+spot.x+", "+spot.y+", "+spot.z+")"};
 
   HUDText(info, new PVector(0,100,0));
@@ -100,24 +107,22 @@ void draw()
 void updateSerial() {
   String cur = serial.readStringUntil('\n');
   if(cur != null) {
-    //println(cur);
     String[] parts = split(cur, " ");
-    if(parts.length == sen  ) {
+    if(parts.length == sen) {
       float[] xyz = new float[sen];
       for(int i = 0; i < sen; i++)
         xyz[i] = float(parts[i]);
-  
+
       if(mousePressed && mouseButton == LEFT)
         for(int i = 0; i < sen; i++)
           n[i].note(xyz[i]);
-  
       nxyz = new float[sen];
       for(int i = 0; i < sen; i++) {
         float raw = n[i].choose(xyz[i]);
         nxyz[i] = flip[i] ? 1 - raw : raw;
-        cama[i].note(nxyz[i]);
+        //cama[i].note(nxyz[i]);
         axyz[i].note(nxyz[i]);
-        ixyz[i] = getPosition(axyz[i].avg);
+        //ixyz[i] = getPosition(axyz[i].avg);
       }
     }
   }
@@ -149,9 +154,9 @@ void setVoxel(Point p, color col)
 void updateCube()
 {
   cubeBackground(color(0, 0, 0)); 
-    //abduction
-  oneVoxel()
-  //gaia.update();
+  
+  game.updateHand(getXYZ());
+  arrayCopy(game.updateCubeInGame(cube), cube);
   
   sendData();
   //delay(10);
@@ -165,101 +170,17 @@ void cubeBackground(color col)
         cube[x][y][z]=col;
 }
 
-void oneVoxel()
-{
-  setVoxel(getXYZ(), color(0,0,255));
-  fill(255);
-  text("( "+getXYZ().x+", "+getXYZ().y+", "+getXYZ().z+" )",10,10);
-}
-
-void line(Point p1, Point p2, color col) {
-
-  int i, dx, dy, dz, l, m, n, x_inc, y_inc, z_inc, err_1, err_2, dx2, dy2, dz2;
-  Point currentPoint=new Point(p1.x, p1.y, p1.z);
-  dx = p2.x - p1.x;
-  dy = p2.y - p1.y;
-  dz = p2.z - p1.z;
-  x_inc = (dx < 0) ? -1 : 1;
-  l = abs(dx);
-  y_inc = (dy < 0) ? -1 : 1;
-  m = abs(dy);
-  z_inc = (dz < 0) ? -1 : 1;
-  n = abs(dz);
-  dx2 = l << 1;
-  dy2 = m << 1;
-  dz2 = n << 1;
-
-  if ((l >= m) && (l >= n)) {
-    err_1 = dy2 - l;
-    err_2 = dz2 - l;
-    for (i = 0; i < l; i++) {
-      setVoxel(currentPoint, col);
-      if (err_1 > 0) {
-        currentPoint.y += y_inc;
-        err_1 -= dx2;
-      }
-      if (err_2 > 0) {
-        currentPoint.z += z_inc;
-        err_2 -= dx2;
-      }
-      err_1 += dy2;
-      err_2 += dz2;
-      currentPoint.x += x_inc;
-    }
-  } else if ((m >= l) && (m >= n)) {
-    err_1 = dx2 - m;
-    err_2 = dz2 - m;
-    for (i = 0; i < m; i++) {
-      setVoxel(currentPoint, col);
-      if (err_1 > 0) {
-        currentPoint.x += x_inc;
-        err_1 -= dy2;
-      }
-      if (err_2 > 0) {
-        currentPoint.z += z_inc;
-        err_2 -= dy2;
-      }
-      err_1 += dx2;
-      err_2 += dz2;
-      currentPoint.y += y_inc;
-    }
-  } else {
-    err_1 = dy2 - n;
-    err_2 = dx2 - n;
-    for (i = 0; i < n; i++) {
-      setVoxel(currentPoint, col);
-      if (err_1 > 0) {
-        currentPoint.y += y_inc;
-        err_1 -= dz2;
-      }
-      if (err_2 > 0) {
-        currentPoint.x += x_inc;
-        err_2 -= dz2;
-      }
-      err_1 += dy2;
-      err_2 += dx2;
-      currentPoint.z += z_inc;
-    }
-  }
-
-  setVoxel(currentPoint, col);
-}
-
-
 Point getXYZ() {
-  // float h = w / 2;
-  // float sw = w / div; // == w/3
-
-  // draw player hand as a sphere
-  // float sd = sw * (div - 1);// == 2w/3
-  
   Point axyzVector = new Point(
       round(axyz[0].avg * 7),  // ax * 2w/3
-      round(axyz[2].avg * 7),
-      round(axyz[1].avg * 7));
-  
-  // Point movedOrgin = new Point(w/4, w, w/3);
-  // axyzVector.add(movedOrgin);
-  
+      round(axyz[1].avg * 7),
+      round(axyz[2].avg * 7));
+
   return axyzVector;
 }
+
+void restartGame() {
+  game = new Game(cube, side, getXYZ());
+}
+
+

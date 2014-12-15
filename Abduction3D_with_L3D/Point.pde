@@ -16,17 +16,18 @@ class Point {
   Point() {
   }
 
-  Point(int _x, int _y, int _z)
-  {
-    this.x=_x;
-    this.y=_y;
-    this.z=_z;
+  Point(int _x, int _y, int _z) {
+    x=_x;
+    y=_y;
+    z=_z;
   }
 
-  void add(Point p)
-  {
-    x = x + p.x;
-    y = y + p.y;
-    z = z + p.z;
+  void checkInBound(int side) {
+    if (x > side) x -= side;
+    if (x < 0) x += side;
+    if (y > side) y -= side;
+    if (y < 0) y += side;
+    if (z > side) z -= side;
+    if (z < 0) z += side;
   }
 }
