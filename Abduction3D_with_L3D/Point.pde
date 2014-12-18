@@ -12,8 +12,13 @@ class Point {
   **/
 
   int x, y, z;
+  int dressCode;  // for humans, 0=red 1=green 2=blue
 
-  Point() {
+  Point(int side) {
+    x = int(random(side));
+    y = 0;
+    z = int(random(side));
+    dressCode = int(random(3));
   }
 
   Point(int _x, int _y, int _z) {
@@ -22,12 +27,14 @@ class Point {
     z=_z;
   }
 
+  Point(Point p) {
+    this(p.x, p.y, p.z);
+  }
+
   void checkInBound(int side) {
-    if (x > side) x -= side;
-    if (x < 0) x += side;
-    if (y > side) y -= side;
-    if (y < 0) y += side;
-    if (z > side) z -= side;
-    if (z < 0) z += side;
+    if (x > side) x -= 1;
+    if (x < 0) x += 1;
+    if (z > side) z -= 1;
+    if (z < 0) z += 1;
   }
 }

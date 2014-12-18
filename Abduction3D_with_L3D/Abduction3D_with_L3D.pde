@@ -7,11 +7,11 @@ import processing.serial.*;
 import processing.opengl.*;
 
 // Abduction3D part
-import damkjer.ocd.*;
+//import damkjer.ocd.*;
 
 Game game;
 Serial serial;
-String serialPort = "/dev/tty.usbmodem1431";   
+String serialPort = "COM4";   
 /** Set this to be the serial port of your Arduino
     - In Windows, if you have 3 ports : COM1, COM2, COM3 , and set "COMx".
     - In Mac OSX or Linux, you could check this reference http://arduino.cc/en/guide/macOSX.
@@ -36,13 +36,14 @@ boolean[] flip = {
 // L3D cube frame part
 color [][][] cube;
 int side = 8;
+int howManyPeople = 5;
 PVector center = new PVector(side/2-.5, side/2 - 0.5, side/2- 0.5);
 PeasyCam cam;
 int scale = 240;
 int state = 0;
 int zed = 0;
 int inc = 1;
-Point spot = new Point(0,0,0);
+Point spot = new Point(4,6,4);
 PImage logo;
 
 
@@ -50,11 +51,11 @@ void setup()
 {
   logo = loadImage("logo.png");
   cube = new color[side][side][side];
-  game = new Game(cube, side, getXYZ());
+  
   print(center);
   size(displayWidth, displayHeight, P3D);
   
-  println(Serial.list());
+  println(Serial.list()); 
   serial = new Serial(this, serialPort, 115200);
   
   for(int i = 0; i < sen; i++) {
@@ -62,11 +63,18 @@ void setup()
     axyz[i] = new MomentumAverage(.13);
   }
   
+  game = new Game(cube, side, howManyPeople, spot);
+  for(int i = 0; i < howManyPeople; i++) {
+    game.humans[i] = new Point(side);
+    game.v[i] = new Speed();
+  }
+
+
   cam = new PeasyCam(this, 4000);
   cam.setMinimumDistance(500);
   cam.setMaximumDistance(10000);
   initMulticast();
-  frameRate(1000);
+  frameRate(10);
 }
   
 
@@ -120,9 +128,7 @@ void updateSerial() {
       for(int i = 0; i < sen; i++) {
         float raw = n[i].choose(xyz[i]);
         nxyz[i] = flip[i] ? 1 - raw : raw;
-        //cama[i].note(nxyz[i]);
         axyz[i].note(nxyz[i]);
-        //ixyz[i] = getPosition(axyz[i].avg);
       }
     }
   }
@@ -151,11 +157,18 @@ void setVoxel(Point p, color col)
         cube[p.x][p.y][p.z]=col;
 }
 
+void oneVoxel()
+{
+  setVoxel(spot, color(0,0,255));
+  fill(255);
+  text("( "+spot.x+", "+spot.y+", "+spot.z+" )",10,10);
+}
+
 void updateCube()
 {
   cubeBackground(color(0, 0, 0)); 
   
-  game.updateHand(getXYZ());
+  game.updateHand(spot);
   arrayCopy(game.updateCubeInGame(cube), cube);
   
   sendData();
@@ -180,7 +193,6 @@ Point getXYZ() {
 }
 
 void restartGame() {
-  game = new Game(cube, side, getXYZ());
+  game = new Game(cube, side, howManyPeople, getXYZ());
 }
-
 
