@@ -1,25 +1,24 @@
 class Game {
 
   int side;
-  int howManyPeople = 10;
   int score = 0;
+  int howManyPeople;
 
-  Speed[] v = new Speed[howManyPeople];
-  Point handPostion;
-  Point[] humans = new Point[howManyPeople];
-  color[][][] cube = new color[side][side][side];
+  Speed[] v;
+  Point[] humans;
+  Point handPosition;
+  color[][][] cube;
+  
 
-
-  Game(color[][][] _cube, int _side, Point _handPosition) {
-  	side = _side;
-    handPostion = _handPosition;
-
-    for (int i=0; i<n; i++) {
-      humans[i].x = random(side);
-      humans[i].y = 0;
-      humans[i].z = random(side);
-    }
-
+  
+  Game(color[][][] _cube, int _side, int _howManyPeople, Point _handPosition) {
+    side = _side;
+    howManyPeople = _howManyPeople;
+    
+    handPosition = new Point(_handPosition);
+    v = new Speed[howManyPeople];
+    humans = new Point[howManyPeople];
+    cube = new color[side][side][side];
     arrayCopy(_cube, cube);
   }
 
@@ -30,47 +29,53 @@ class Game {
     		if ((p.z>=0)&&(p.z<side))
         		cube[p.x][p.y][p.z]=col;
   }
+  
+  void setVoxel(int x, int y, int z, color col)
+  {
+    if ((x>=0)&&(x<side))
+      if ((y>=0)&&(y<side))
+        if ((z>=0)&&(z<side))
+          cube[x][y][z]=col;
+  }
 
   void updateHand(Point p) {
-    p = handPostion;
+    handPosition = new Point(p);
   }
 
   void paintUFO() {
     setVoxel(handPosition, color(150, 0, 255));
-    handPostion.y = handPostion.y - 1;
-    setVoxel(handPosition, color(150, 0, 255));
-    handPostion.y = handPostion.y + 2;
+    handPosition.y = handPosition.y + 1;
     setVoxel(handPosition, color(0, 0, 255));
-    handPostion.y = handPostion.y - 1;
-    handPostion.x = handPostion.x + 1;
-    setVoxel(handPostion, color(0, 0, 255));
-    handPostion.x = handPostion.x - 2;
-    setVoxel(handPostion, color(0, 0, 255));
-    handPostion.x = handPostion.x + 1;
-    handPostion.z = handPostion.z + 1;
-    setVoxel(handPostion, color(0, 0, 255));
-    handPostion.z = handPostion.z - 2;
-    setVoxel(handPostion, color(0, 0, 255));
-    handPostion.x = handPostion.x + 1;
-    setVoxel(handPostion, color(0, 0, 120));
-    handPostion.x = handPostion.x - 2;
-    setVoxel(handPostion, color(0, 0, 120));
-    handPostion.z = handPostion.z + 2;
-    setVoxel(handPostion, color(0, 0, 120));
-    handPostion.x = handPostion.x + 2;
-    setVoxel(handPostion, color(0, 0, 120));
-    handPostion.x = handPostion.z - 1;
-    handPostion.x = handPostion.x - 1;
+    handPosition.y = handPosition.y - 1;
+    handPosition.x = handPosition.x + 1;
+    setVoxel(handPosition, color(0, 0, 255));
+    handPosition.x = handPosition.x - 2;
+    setVoxel(handPosition, color(0, 0, 255));
+    handPosition.x = handPosition.x + 1;
+    handPosition.z = handPosition.z + 1;
+    setVoxel(handPosition, color(0, 0, 255));
+    handPosition.z = handPosition.z - 2;
+    setVoxel(handPosition, color(0, 0, 255));
+    handPosition.x = handPosition.x + 1;
+    setVoxel(handPosition, color(0, 0, 120));
+    handPosition.x = handPosition.x - 2;
+    setVoxel(handPosition, color(0, 0, 120));
+    handPosition.z = handPosition.z + 2;
+    setVoxel(handPosition, color(0, 0, 120));
+    handPosition.x = handPosition.x + 2;
+    setVoxel(handPosition, color(0, 0, 120));
+    handPosition.z = handPosition.z - 1;
+    handPosition.x = handPosition.x - 1;
   }
 
   void sucking(int i) {
     int tempY = handPosition.y - humans[i].y;
     if (tempY <= 1) {
       setVoxel(humans[i], color(255, 157, 0));
-      setVoxel(humans[i].y + 1, color(255, 110, 0));
-      humans[i].x = random(side);
+      setVoxel(humans[i].x, humans[i].y + 1, humans[i].z, color(255, 110, 0));
+      humans[i].x = int(random(side));
       humans[i].y = 0;
-      humans[i].z = random(side);
+      humans[i].z = int(random(side));
       score++;
     }
     else {
@@ -79,12 +84,14 @@ class Game {
       setVoxel(humans[i], color(255, 200, 0));
       humans[i].y = humans[i].y + round(tempY/2);
       setVoxel(humans[i], color(255, 157, 0));
-      setVoxel(humans[i].y + 1, color(255, 110, 0));
+      setVoxel(humans[i].x, humans[i].y + 1, humans[i].z, color(255, 170, 0));
+      setVoxel(humans[i].x, humans[i].y + 2, humans[i].z, color(255, 110, 0));
     }
   }
   
   void updateHuman() {
     for (int i=0; i<humans.length; i++) {
+      println(humans[i].dressCode);
       if (handPosition.x == humans[i].x && handPosition.z == humans[i].z) {
         sucking(i);
       }
@@ -96,6 +103,7 @@ class Game {
         humans[i].y = 0;
         humans[i].z = humans[i].z + v[i].z;
         humans[i].checkInBound(side);
+        v[i].checkRebounded(humans[i], side);
       }
     }
   }
@@ -105,10 +113,23 @@ class Game {
     updateHuman();
     for (int i=0; i<humans.length; i++) {
       if (humans[i].y == 0){
-        setVoxel(humans[i], color(255, 157, 0));
-        setVoxel(humans[i].y + 1, color(255, 110, 0));
+        switch(humans[i].dressCode) {
+          case 0:
+            setVoxel(humans[i], color(255, 0, 0));
+            setVoxel(humans[i].x, humans[i].y + 1, humans[i].z, color(255, 110, 0));
+            break;
+          case 1:
+            setVoxel(humans[i], color(0, 255, 0));
+            setVoxel(humans[i].x, humans[i].y + 1, humans[i].z, color(255, 110, 0));
+            break;
+          case 2:
+            setVoxel(humans[i], color(0, 0, 255));
+            setVoxel(humans[i].x, humans[i].y + 1, humans[i].z, color(255, 110, 0));
+            break;
+        }
       }
     }
+    delay(500);
   }
 
 
@@ -118,7 +139,7 @@ class Game {
   }
 
 
-  Point updateCubeInGame(color[][][] newCube) {
+  color[][][] updateCubeInGame(color[][][] newCube) {
     updateGame();
     arrayCopy(cube, newCube);
 
