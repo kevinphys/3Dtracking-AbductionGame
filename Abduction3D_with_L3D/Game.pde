@@ -129,7 +129,7 @@ class Game {
         }
       }
     }
-    delay(500);
+    delay(50);
   }
 
 

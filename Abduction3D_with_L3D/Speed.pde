@@ -18,9 +18,9 @@ class Speed {
 
   void checkRebounded(Point p, int side) {
     if (p.x == side-1) x = -x;
-    if (p.x == 1) x = -x;
+    if (p.x == 0) x = -x;
     if (p.z == side-1) z = -z;
-    if (p.z == 1) z = -z;
+    if (p.z == 0) z = -z;
   }
 
 }

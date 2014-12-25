@@ -32,9 +32,9 @@ class Point {
   }
 
   void checkInBound(int side) {
-    if (x > side) x -= 1;
+    if (x >= side) x -= 1;
     if (x < 0) x += 1;
-    if (z > side) z -= 1;
+    if (z >= side) z -= 1;
     if (z < 0) z += 1;
   }
 }

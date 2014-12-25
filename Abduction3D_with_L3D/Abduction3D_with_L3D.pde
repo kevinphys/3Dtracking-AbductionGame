@@ -6,8 +6,7 @@ import peasy.org.apache.commons.math.geometry.*;
 import processing.serial.*;
 import processing.opengl.*;
 
-// Abduction3D part
-//import damkjer.ocd.*;
+
 
 Game game;
 Serial serial;
@@ -43,7 +42,6 @@ int scale = 240;
 int state = 0;
 int zed = 0;
 int inc = 1;
-Point spot = new Point(4,6,4);
 PImage logo;
 
 
@@ -63,7 +61,7 @@ void setup()
     axyz[i] = new MomentumAverage(.13);
   }
   
-  game = new Game(cube, side, howManyPeople, spot);
+  game = new Game(cube, side, howManyPeople, getXYZ());
   for(int i = 0; i < howManyPeople; i++) {
     game.humans[i] = new Point(side);
     game.v[i] = new Speed();
@@ -106,7 +104,7 @@ void draw()
   cam.beginHUD();
   image(logo,0,0);
   String []info={"L3D Cube combined with 3D tracking test",
-                "Voxel position: ("+spot.x+", "+spot.y+", "+spot.z+")"};
+                "Voxel position: ("+getXYZ().x+", "+getXYZ().y+", "+getXYZ().z+")"};
 
   HUDText(info, new PVector(0,100,0));
   cam.endHUD();
@@ -157,18 +155,18 @@ void setVoxel(Point p, color col)
         cube[p.x][p.y][p.z]=col;
 }
 
-void oneVoxel()
-{
-  setVoxel(spot, color(0,0,255));
-  fill(255);
-  text("( "+spot.x+", "+spot.y+", "+spot.z+" )",10,10);
-}
+//void oneVoxel()
+//{
+//  setVoxel(spot, color(0,0,255));
+//  fill(255);
+//  text("( "+spot.x+", "+spot.y+", "+spot.z+" )",10,10);
+//}
 
 void updateCube()
 {
   cubeBackground(color(0, 0, 0)); 
   
-  game.updateHand(spot);
+  game.updateHand(getXYZ());
   arrayCopy(game.updateCubeInGame(cube), cube);
   
   sendData();
