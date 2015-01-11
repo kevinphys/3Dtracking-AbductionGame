@@ -5,7 +5,6 @@
 
 #define resolution 8
 #define mains 50 // 60: north america, japan; 50: most other places
-
 #define refresh 2 * 1000000 / mains
 
 void setup() {
