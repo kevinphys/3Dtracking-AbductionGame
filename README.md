@@ -6,7 +6,7 @@
 
 This is a funny game made from two kinds of different project.
 
-Based on Arduino, we finally can destroy all human beings in the world (the "L3D cube" world). HURRAY!
+Based on Arduino, we finally can destroy all human beings in the world (the "L3D cube" world). HURRAY!!
 
 ##Get started
 * Make your own [3D-tracking system](http://makezine.com/projects/a-touchless-3d-tracking-interface/) by [Steve Hobley](http://www.stephenhobley.com/blog/)
