@@ -17,7 +17,7 @@ Based on Arduino, we finally can destroy all human beings in the world (the "L3D
 By __"_3DInterface.ino"__, Arduino can receive the data from three capacitances. See more [3D-tracking system](http://makezine.com/projects/a-touchless-3d-tracking-interface/) details here.
 
 ###Using with Processing
-My roommate [peter26194](https://github.com/peter26194) and I wrote the original game (in __abduction3d__ folder) first. You can try to play on your computer without L3D cube and feel how amazing is 3D-tracking system with only three capacitance.
+My roommate [peter26194](https://github.com/peter26194) and I wrote the original game (in __Abduction3D__ folder) first. You can try to play on your computer without L3D cube and feel how amazing is 3D-tracking system with only three capacitance.
 
 Later, if you get one L3D cube, then in __Abduction3D_with_L3D__ folder, you would see the best 3D display game ever. We use the [streaming code](https://github.com/enjrolas/L3D-Software) here. It's like old school low pixel games before. That's AWESOME!!
 
