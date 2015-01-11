@@ -1,25 +1,25 @@
 class Game {
 
   int side;
-  int score = 0;
+  //int score = 0;
   int howManyPeople;
 
-  Speed[] v;
+  Speed[] v;  // Speed of running human
   Point[] humans;
   Point handPosition;
   color[][][] cube;
   
 
-  
   Game(color[][][] _cube, int _side, int _howManyPeople, Point _handPosition) {
     side = _side;
     howManyPeople = _howManyPeople;
-    
+
     handPosition = new Point(_handPosition);
     v = new Speed[howManyPeople];
     humans = new Point[howManyPeople];
     cube = new color[side][side][side];
-    arrayCopy(_cube, cube);
+    
+    arrayCopy(_cube, cube);   // From global cube color array to local class one
   }
 
 
@@ -68,6 +68,7 @@ class Game {
     handPosition.x = handPosition.x - 1;
   }
 
+
   void sucking(int i) {
     int tempY = handPosition.y - humans[i].y;
     if (tempY <= 1) {
@@ -76,7 +77,7 @@ class Game {
       humans[i].x = int(random(side));
       humans[i].y = 0;
       humans[i].z = int(random(side));
-      score++;
+      //score++;
     }
     else {
       setVoxel(humans[i], color(255, 220, 0));
@@ -88,6 +89,7 @@ class Game {
       setVoxel(humans[i].x, humans[i].y + 2, humans[i].z, color(255, 110, 0));
     }
   }
+
   
   void updateHuman() {
     for (int i=0; i<humans.length; i++) {
@@ -110,20 +112,21 @@ class Game {
 
 
   void paintHuman() {
+    // Set random color to each human's body
     updateHuman();
     for (int i=0; i<humans.length; i++) {
       if (humans[i].y == 0){
         switch(humans[i].dressCode) {
           case 0:
-            setVoxel(humans[i], color(255, 0, 0));
+            setVoxel(humans[i], color(255, 0, 0));  // Red body
             setVoxel(humans[i].x, humans[i].y + 1, humans[i].z, color(255, 110, 0));
             break;
           case 1:
-            setVoxel(humans[i], color(0, 255, 0));
+            setVoxel(humans[i], color(0, 255, 0));  // Green body
             setVoxel(humans[i].x, humans[i].y + 1, humans[i].z, color(255, 110, 0));
             break;
           case 2:
-            setVoxel(humans[i], color(0, 0, 255));
+            setVoxel(humans[i], color(0, 0, 255));  // Blue body
             setVoxel(humans[i].x, humans[i].y + 1, humans[i].z, color(255, 110, 0));
             break;
         }

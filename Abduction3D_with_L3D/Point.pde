@@ -1,5 +1,5 @@
 class Point {
-  /** In every LEDs in 8x8x8 cube, we set class Point to each point. 
+  /** Every LEDs in 8x8x8 cube, we set class Point to each point. 
       
           y ^
             |   ^ z
