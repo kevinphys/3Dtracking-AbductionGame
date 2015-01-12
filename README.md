@@ -21,6 +21,19 @@ My roommate [peter26194](https://github.com/peter26194) and I wrote the original
 
 Later, if you get one L3D cube, then in __Abduction3D_with_L3D__ folder, you would see the best 3D display game ever. We use the [streaming code](https://github.com/enjrolas/L3D-Software) here. It's like old school low pixel games before. That's AWESOME!!
 
+##Library
+Install [L3D library](https://github.com/enjrolas/L3D-library) to Processing
+
+##How to play
+1. __Calibration__
+  * Click your mouse and hold on
+  * Move your hand from inside to outside
+  * Release the mouse
+2. __Move your hand to control the UFO__
+  * Do not be kind to those human beings
+  * Only one hand recommended
+3. __Enjoy it!__
+
 ##WARNING AGAIN!
 ![](http://thedudebook.com/wp-content/uploads/2010/10/sign_ufoWarning.jpg)
 
